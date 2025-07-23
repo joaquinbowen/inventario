@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class Producto {
 
-	private String codigo;
+	private int codigo;
 	private String nombre;
 	private UnidadMedida unidadMedida;
 	private BigDecimal precioVenta;
@@ -13,7 +13,7 @@ public class Producto {
 	private Categoria categoria;
 	private int stock;
 
-	public Producto(String codigo, String nombre, UnidadMedida unidadMedida, BigDecimal precioVenta, boolean tieneIVA,
+	public Producto(int codigo, String nombre, UnidadMedida unidadMedida, BigDecimal precioVenta, boolean tieneIVA,
 			BigDecimal coste, Categoria categoria, int stock) {
 		super();
 		this.codigo = codigo;
@@ -37,11 +37,11 @@ public class Producto {
 				+ categoria + ", stock=" + stock + "]";
 	}
 
-	public String getCodigo() {
+	public int getCodigo() {
 		return codigo;
 	}
 
-	public void setCodigo(String codigo) {
+	public void setCodigo(int codigo) {
 		this.codigo = codigo;
 	}
 

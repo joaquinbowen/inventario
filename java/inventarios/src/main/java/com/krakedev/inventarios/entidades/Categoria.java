@@ -2,11 +2,11 @@ package com.krakedev.inventarios.entidades;
 
 public class Categoria {
 
-	private String codigo;
+	private int codigo;
 	private String nombre;
 	private Categoria categoriaPadre;
 
-	public Categoria(String codigo, String nombre, Categoria categoriaPadre) {
+	public Categoria(int codigo, String nombre, Categoria categoriaPadre) {
 		super();
 		this.codigo = codigo;
 		this.nombre = nombre;
@@ -22,11 +22,11 @@ public class Categoria {
 		return "Categorias [codigo=" + codigo + ", nombre=" + nombre + ", categoriaPadre=" + categoriaPadre + "]";
 	}
 
-	public String getCodigo() {
+	public int getCodigo() {
 		return codigo;
 	}
 
-	public void setCodigo(String codigo) {
+	public void setCodigo(int codigo) {
 		this.codigo = codigo;
 	}
 
