@@ -49,19 +49,62 @@ public class PedidosBDD {
 						"insert into detalle_pedido(cabecera_pedido,producto,cantidad_solicitada,subtotal,cantidad_recibida)"
 								+ " values(?,?,?,?,?);");
 				psDet.setInt(1, codigoCabecera);
-				psDet.setInt(2,det.getProducto().getCodigo());
+				psDet.setInt(2, det.getProducto().getCodigo());
 				psDet.setInt(3, det.getCantidadSolicitada());
-				BigDecimal pv=det.getProducto().getPrecioVenta();
-				BigDecimal cantidad=new BigDecimal(det.getCantidadSolicitada());
-				BigDecimal subtotal=pv.multiply(cantidad);
-				psDet.setBigDecimal(4,subtotal);
+				BigDecimal pv = det.getProducto().getPrecioVenta();
+				BigDecimal cantidad = new BigDecimal(det.getCantidadSolicitada());
+				BigDecimal subtotal = pv.multiply(cantidad);
+				psDet.setBigDecimal(4, subtotal);
 				psDet.setInt(5, 0);
-				
 				psDet.executeUpdate();
-				
-				
-
 			}
+
+		} catch (KrakedevException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new KrakedevException("Error al insertar Detalle:" + e.getMessage());
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	public void recibir(Pedido pedido) throws KrakedevException {
+		Connection con = null;
+		PreparedStatement ps = null;
+		PreparedStatement ps2 =null;
+
+		try {
+			con = ConexionBDD.obtenerConexion();
+
+			ArrayList<DetallePedido> detallesPedido = pedido.getPedidos();
+			DetallePedido det;
+			for (int i = 0; i < detallesPedido.size(); i++) {
+				det = detallesPedido.get(i);
+				ps = con.prepareStatement(
+						"update detalle_pedido" + " set cantidad_recibida=?,subtotal=?" + " where codigo=?");
+				
+				det = detallesPedido.get(i);
+				ps.setInt(3, det.getCodigo());
+				ps.setInt(1, det.getCantidadRecibida());
+				BigDecimal cantidadRecibida = new BigDecimal(det.getCantidadRecibida());
+				BigDecimal pv = det.getProducto().getPrecioVenta();
+				BigDecimal subtotal = pv.multiply(cantidadRecibida);
+				ps.setBigDecimal(2, subtotal);
+				ps.executeUpdate();
+			}
+			ps2=con.prepareStatement("update cabecera_pedido set estado=? where numero=?");
+			ps2.setString(1, "R");
+			ps2.setInt(2, pedido.getCodigo());
+			ps2.executeUpdate();
 
 		} catch (KrakedevException e) {
 			e.printStackTrace();

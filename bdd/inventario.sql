@@ -110,12 +110,16 @@ prod.categoria,cat.nombre as nombre_categoria,prod.stock
 from productos prod,unidades_medida udm,categorias cat
 where prod.udm = udm.codigo_udm
 and prod.categoria = cat.codigo_cat
-and upper(prod.nombre) like '%M%'
+and upper(prod.nombre) like '%A%';
+
+update detalle_pedido
+set cantidad_recibida=40,subtotal=20
+where codigo=5;
 
 select * 
 from productos prod,unidades_medida udm,categorias cat
 where prod.udm = udm.codigo_udm
-and prod.categoria = cat.codigo_cat
+and prod.categoria = cat.codigo_cat;
 
 
 create table historial_stock(
