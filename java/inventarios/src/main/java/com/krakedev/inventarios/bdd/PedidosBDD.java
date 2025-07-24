@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -80,7 +81,8 @@ public class PedidosBDD {
 	public void recibir(Pedido pedido) throws KrakedevException {
 		Connection con = null;
 		PreparedStatement ps = null;
-		PreparedStatement ps2 =null;
+		PreparedStatement psEstado =null;
+		PreparedStatement psHistorial =null;
 
 		try {
 			con = ConexionBDD.obtenerConexion();
@@ -91,8 +93,18 @@ public class PedidosBDD {
 				det = detallesPedido.get(i);
 				ps = con.prepareStatement(
 						"update detalle_pedido" + " set cantidad_recibida=?,subtotal=?" + " where codigo=?");
+				psHistorial=con.prepareStatement("insert into historial_stock(fecha,referencia,producto,cantidad) "
+						+ " values(?,?,?,?)");
 				
 				det = detallesPedido.get(i);
+				Date fechaAct = new Date();
+				Timestamp fechaSQL = new Timestamp(fechaAct.getTime());
+				
+				psHistorial.setTimestamp(1, fechaSQL);
+				psHistorial.setString(2,"Pedido "+ pedido.getCodigo());
+				psHistorial.setInt(3, det.getProducto().getCodigo());
+				psHistorial.setInt(4, det.getCantidadRecibida());
+				
 				ps.setInt(3, det.getCodigo());
 				ps.setInt(1, det.getCantidadRecibida());
 				BigDecimal cantidadRecibida = new BigDecimal(det.getCantidadRecibida());
@@ -100,11 +112,12 @@ public class PedidosBDD {
 				BigDecimal subtotal = pv.multiply(cantidadRecibida);
 				ps.setBigDecimal(2, subtotal);
 				ps.executeUpdate();
+				psHistorial.executeUpdate();
 			}
-			ps2=con.prepareStatement("update cabecera_pedido set estado=? where numero=?");
-			ps2.setString(1, "R");
-			ps2.setInt(2, pedido.getCodigo());
-			ps2.executeUpdate();
+			psEstado=con.prepareStatement("update cabecera_pedido set estado=? where numero=?");
+			psEstado.setString(1, "R");
+			psEstado.setInt(2, pedido.getCodigo());
+			psEstado.executeUpdate();
 
 		} catch (KrakedevException e) {
 			e.printStackTrace();
