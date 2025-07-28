@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="ejercicio.js"></script>
+    </head>
+    <body>
+        <input type="text" id="txtValor"/>
+        <input type="button" value="TEST1" onclick="ejecutarCadena((texto)=>{
+            console.log('Hola '+texto);
+        });"/>
+        <input type="button" value="TEST2" onclick="ejecutarCadena((texto)=>{
+            let cadena=texto;
+            let mayus=cadena.toUpperCase();
+            console.log(mayus);
+        });"/>
+        <input type="button" value="TEST3" onclick="ejecutarCadena((texto)=>{
+            let contador=texto.length;
+            let mensaje='La palabra ha tenido '+contador+' letras.'; 
+            alert(mensaje);
+        });"/>        
+    </body>
+</html>
