@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, ScrollView, TextInput, Button, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ScrollView, TextInput, Button, Alert, Modal, TouchableHighlight } from 'react-native';
 
 let productos = [
   { codigo: 101, nombre: "Papitas", categoria: "Snacks", precioCompra: 0.65 },
@@ -14,6 +14,7 @@ let productos = [
 let esNuevo = true;
 let codigoSeleccionado = -1;
 let indiceSeleccionado = -1;
+let aceptarBorrar = false;
 
 
 export default function App() {
@@ -100,45 +101,47 @@ export default function App() {
 
 
   let ItemProducto = (props) => {
-    return (<View style={styles.itemP} >
-      <View style={styles.itemCodigo} >
-        <Text>{props.producto.codigo}</Text>
-      </View>
-      <View style={styles.itemNombre} >
-        <Text>{props.producto.nombre}</Text>
-        <Text>{props.producto.categoria}</Text>
-      </View>
-      <View style={styles.itemPrecio} >
-        <Text>{"USD " + (parseFloat(props.producto.precioCompra) * 1.2).toFixed(2)}</Text>
-      </View>
-      <View style={styles.itemBotones} >
-        <Button
-          title='E'
-          color='green'
-          onPress={() => {
-            codigoSeleccionado = props.producto.codigo;
-            setTxtCodigo((props.producto.codigo).toString());
-            setTxtNombre(props.producto.nombre);
-            setTxtCategoria(props.producto.categoria);
-            setTxtPrecioCompra((props.producto.precioCompra).toString());
-            setTxtPrecioVenta((((props.producto.precioCompra) * 1.2).toFixed(2)).toString());
-            esNuevo = false;
+    return (
+      <TouchableHighlight
+        onPress={() => {
+          codigoSeleccionado = props.producto.codigo;
+          setTxtCodigo((props.producto.codigo).toString());
+          setTxtNombre(props.producto.nombre);
+          setTxtCategoria(props.producto.categoria);
+          setTxtPrecioCompra((props.producto.precioCompra).toString());
+          setTxtPrecioVenta((((props.producto.precioCompra) * 1.2).toFixed(2)).toString());
+          esNuevo = false;
 
-          }}
-        />
-        <Button
-          title='X'
-          color='red'
-          onPress={() => {
-            indiceSeleccionado = props.indice;
-            productos.splice(indiceSeleccionado, 1);
-            setNumProductos(productos.length)
-          }}
-        />
-      </View>
+        }}
+      >
+
+        <View style={styles.itemP} >
+          <View style={styles.itemCodigo} >
+            <Text>{props.producto.codigo}</Text>
+          </View>
+          <View style={styles.itemNombre} >
+            <Text>{props.producto.nombre}</Text>
+            <Text>{props.producto.categoria}</Text>
+          </View>
+          <View style={styles.itemPrecio} >
+            <Text>{"USD " + (parseFloat(props.producto.precioCompra) * 1.2).toFixed(2)}</Text>
+          </View>
+          <View style={styles.itemBotones} >
+            <Button
+              title='X'
+              color='red'
+              onPress={() => {
+                setModalVisible(true)
+                indiceSeleccionado = props.indice;
+
+              }}
+            />
+          </View>
 
 
-    </View>)
+        </View>
+      </TouchableHighlight>
+    )
   }
 
   const [txtCodigo, setTxtCodigo] = useState("");
@@ -147,9 +150,44 @@ export default function App() {
   const [txtPrecioCompra, setTxtPrecioCompra] = useState("");
   const [txtPrecioVenta, setTxtPrecioVenta] = useState("");
   const [numProductos, setNumProductos] = useState(productos.length);
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <View style={styles.container}>
+      <Modal
+        animationType='slide'
+        transparent={false}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modal} >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText} >¿Está seguro que quiere eliminar?</Text>
+            <View style={styles.modalButtons}>
+              <Button
+                style={styles.modalButtons}
+                title='CANCELAR'
+                onPress={() => {
+                  setModalVisible(false)
+                }}
+              />
+              <Button
+                title='ACEPTAR'
+                onPress={() => {
+                  productos.splice(indiceSeleccionado, 1);
+                  setNumProductos(productos.length);
+                  setModalVisible(!modalVisible)
+
+                }}
+              />
+            </View>
+          </View>
+
+        </View>
+
+      </Modal>
       <View style={styles.cabecera} >
         <ScrollView>
           <View style={styles.titulo}>
@@ -161,7 +199,7 @@ export default function App() {
               value={txtCodigo}
               placeholder='Código'
               keyboardType='numeric'
-              onChangeText={(txt) => {
+              onChangeText={txt => {
                 if (txt == "" || txt == null) {
                   console.log("sirvio la wea")
                   setTxtCodigo("")
@@ -177,7 +215,7 @@ export default function App() {
               value={txtNombre}
               placeholder='Nombre'
               keyboardType='default'
-              onChangeText={(txt) => {
+              onChangeText={txt => {
                 setTxtNombre(txt)
               }}
             />
@@ -186,7 +224,7 @@ export default function App() {
               value={txtCategoria}
               placeholder='Categoria'
               keyboardType='default'
-              onChangeText={(txt) => {
+              onChangeText={txt => {
                 setTxtCategoria(txt)
               }}
             />
@@ -195,7 +233,7 @@ export default function App() {
               value={txtPrecioCompra}
               placeholder='Precio de Compra'
               keyboardType='numeric'
-              onChangeText={(txt) => {
+              onChangeText={txt => {
                 setTxtPrecioCompra(txt)
                 if (txt) {
                   setTxtPrecioVenta((parseFloat(txt) * 1.2).toFixed(2))
@@ -233,7 +271,7 @@ export default function App() {
       <View style={styles.lista} >
         <FlatList
           data={productos}
-          keyExtractor={(item) => {
+          keyExtractor={item => {
             return item.codigo;
           }}
           renderItem={(elemento) => {
@@ -311,10 +349,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   itemBotones: {
-    flex: 2,
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center'
+    justifyContent: 'center',
+    alignItems: 'center',
+    //backgroundColor: 'gray'
   },
   input: {
     height: 40,
@@ -322,5 +361,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  modal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    margin: 0,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 20,
+    fontStyle: 'italic',
+    marginBottom: 30,  // Más espacio debajo del texto
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,  // Espacio adicional arriba de los botones
+  },
+  modalButton: {
+    minWidth: 100,  // Ancho mínimo para los botones
+    marginHorizontal: 10,  // Espacio entre botones
   }
 });

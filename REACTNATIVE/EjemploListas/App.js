@@ -19,18 +19,18 @@ let indiceSeleccionado = -1;
 
 export default function App() {
 
-  let ItemPersona = (props) => {
+  let ItemPersona = (indice, persona) => {
     return (
       <View style={styles.itemPersona} >
         <View style={styles.areaIndice}>
-          <Text>{props.indice}</Text>
+          <Text>{indice}</Text>
         </View>
         <View style={styles.itemContenido}>
           <Text style={styles.textoPrincipal}>
-            {props.persona.nombre} {props.persona.apellido}
+            {persona.nombre} {persona.apellido}
           </Text>
           <Text style={styles.textoSecundario}>
-            {props.persona.cedula}
+            {persona.cedula}
           </Text>
         </View>
         <View style={styles.itemBotones} >
@@ -38,18 +38,18 @@ export default function App() {
             title=' E '
             color='green'
             onPress={() => {
-              setTxtCedula(props.persona.cedula)
-              setTxtNombre(props.persona.nombre)
-              setTxtApellido(props.persona.apellido)
+              setTxtCedula(persona.cedula)
+              setTxtNombre(persona.nombre)
+              setTxtApellido(persona.apellido)
               esNuevo = false;
-              indiceSeleccionado = props.indice
+              indiceSeleccionado = indice
             }}
           />
           <Button
             title=' X '
             color='red'
             onPress={() => {
-              indiceSeleccionado = props.indice;
+              indiceSeleccionado = indice;
               personas.splice(indiceSeleccionado, 1);
               setNumElementos(personas.length)
             }}
@@ -109,7 +109,7 @@ export default function App() {
           style={styles.txt}
           value={txtCedula}
           placeholder='Ingrese su cedula'
-          onChangeText={(txt) => {
+          onChangeText={txt => {
             setTxtCedula(txt)
           }}
           keyboardType='numeric'
@@ -119,7 +119,7 @@ export default function App() {
           style={styles.txt}
           value={txtNombre}
           placeholder='Ingrese su nombre'
-          onChangeText={(txt) => {
+          onChangeText={txt => {
             setTxtNombre(txt)
           }}
         />
@@ -127,7 +127,7 @@ export default function App() {
           style={styles.txt}
           value={txtApellido}
           placeholder='Ingrese su apellido'
-          onChangeText={(txt) => {
+          onChangeText={txt => {
             setTxtApellido(txt)
           }}
         />
@@ -148,12 +148,10 @@ export default function App() {
         <FlatList
           style={styles.lista}
           data={personas}
-          renderItem={(elemento) => {                                     //
-            return (<ItemPersona indice={elemento.index} persona={elemento.item} />)
+          renderItem={({ index, item }) => {                                     //
+            return (<ItemPersona indice={index} persona={item} />)
           }}
-          keyExtractor={(item) => {
-            return item.cedula;
-          }}
+          keyExtractor={item => item.cedula}
         />
       </View>
       <View style={styles.areaPie} >
